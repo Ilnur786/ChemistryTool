@@ -21,6 +21,7 @@ class Molecule(Isomorphism, MoleculeABC):
                 raise KeyError('такая связь уже есть')
             else:
                 self._bonds[start_atom][end_atom] = bond_type
+                self._bonds[end_atom][start_atom] = bond_type
 
     def __repr__(self):
         return 'Molecule: atoms{}, bonds{}'.format(self._atoms, self._bonds)
