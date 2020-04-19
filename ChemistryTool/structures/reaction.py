@@ -18,8 +18,9 @@ class MoleculeList(MoleculeListABC):
         return self._data[i]
 
     def __setitem__(self, i, molecule):
-        if isinstance(molecule, MoleculeList) and isinstance(molecule, Iterable) and isinstance(i, slice):
-            self._data[i] = molecule
+        if isinstance(i, slice):
+            if all(isinstance(mol, Molecule) for mol in molecule):
+                self._data[i] = molecule
         elif isinstance(molecule, Molecule) and isinstance(i, int):
             self._data[i] = molecule
         else:
