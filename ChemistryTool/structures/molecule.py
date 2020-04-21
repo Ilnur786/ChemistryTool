@@ -1,7 +1,8 @@
+from collections import Counter
 from .abc import MoleculeABC
 from ..algorithms import Isomorphism
-from ..periodictable.element import Element  #почему мне явно пришлось указать этот импорт?
-from collections import Counter
+from ..periodictable.element import Element
+
 
 def sortByAlphabet(inputStr):
     return inputStr[0]
@@ -65,7 +66,7 @@ class Molecule(Isomorphism, MoleculeABC):
 
     def __enter__(self):
         # todo: make backup of internal data
-        self._backup_atoms = self._atoms.copy()     #а здесь переменные писать через селф или без? и если писать с селф то надо их в ините прописывать?
+        self._backup_atoms = self._atoms.copy()     #а здесь переменные писать через селф или без? и если писать с селф то надо их в ините прописывать? переменные через селф можно сохдавать внутри метода, не указав в ините. Отличие таких переменных от обычных в том, что обычные переменные исчезнут сразу же после выполнения метода, а переменные сылф сохраняться.
         self._backup_bonds = self._bonds.copy()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -101,3 +102,4 @@ class Molecule(Isomorphism, MoleculeABC):
 
 __all__ = ['Molecule']
 
+# Управлениие ПО. Сделать питон файл setup файлом.
