@@ -3,7 +3,6 @@ from .abc import MoleculeABC
 from ..algorithms import Isomorphism
 from ..periodictable.element import Element
 
-
 def sortByAlphabet(inputStr):
     return inputStr[0]
 
@@ -102,4 +101,3 @@ class Molecule(Isomorphism, MoleculeABC):
 
 __all__ = ['Molecule']
 
-# Управлениие ПО. Сделать питон файл setup файлом.
