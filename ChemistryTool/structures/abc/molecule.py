@@ -10,7 +10,7 @@ class MoleculeABC(IsomorphismABC, ComponentsABC, ABC):
     def __init__(self):
         self._atoms: Dict[int, Element] = {}
         self._bonds: Dict[int, Dict[int, int]] = {}
-        self._charges: Dict[int, int] = {}
+        self._charges: Dict[int, int] = {}       #это словарь зарядов: ключ - номер атома в графе, значение его заряд
 
     @abstractmethod
     def get_atom(self, number: int) -> Element:

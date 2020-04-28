@@ -3,18 +3,20 @@ from .abc import MoleculeABC
 from ..algorithms import Isomorphism
 from ..periodictable.element import Element
 
-def sortByAlphabet(inputStr):
-    return inputStr[0]
+def sort_alphabet(input):
+    return input[0]
 
 class Molecule(Isomorphism, MoleculeABC):
-    def add_atom(self, element: str, number: int):
+    def add_atom(self, element: Element, number: int, charge: int = 0):
         if number in self._atoms:
             raise KeyError('атом с таким номером уже есть')
-        if isinstance(element, str):
+        if isinstance(element, Element) and isinstance(number, int) and isinstance(charge, int):
+            element.attach(self, number)
+            self._charges[number] = charge
             self._atoms[number] = element
             self._bonds[number] = {}
         else:
-            raise TypeError('нужно ввести строку')
+            raise TypeError('нужно ввести элемент и его заряд')
 
     def add_bond(self, start_atom: int, end_atom: int, bond_type: int):
         if start_atom == end_atom:
@@ -28,19 +30,18 @@ class Molecule(Isomorphism, MoleculeABC):
             self._bonds[end_atom][start_atom] = bond_type
 
     def get_atom(self, number: int) -> Element:
-        if isinstance(number, int):
-            return self._atoms[number]
-        else:
-            raise TypeError
+        return self._atoms[number]
 
     def get_bond(self, start_atom: int, end_atom: int) -> int:
-        if isinstance(start_atom, int) and isinstance(end_atom, int):
-            return self._bonds[start_atom][end_atom]
-        else:
-            raise TypeError
+        return self._bonds[start_atom][end_atom]
+
+    g2 = ({1: 'C', 2: 'C', 3: 'O', 4: 'C'}, {1: {2: 1}, 2: {1: 1, 3: 1}, 3: {2: 1, 4: 1}, 4: {3: 1}})
 
     def delete_atom(self, number: int):
         if isinstance(number, int):
+            for i in self._bonds[number]:
+                del self[i][number]
+            del self._bonds[number]
             del self._atoms[number]
         else:
             raise TypeError
@@ -48,40 +49,53 @@ class Molecule(Isomorphism, MoleculeABC):
     def delete_bond(self, start_atom: int, end_atom: int):
         if isinstance(start_atom, int) and isinstance(end_atom, int):
             del self._atoms[start_atom][end_atom]
+            del self._atoms[end_atom][start_atom]
         else:
             raise TypeError
 
     def update_atom(self, element: Element, number: int):
         if isinstance(element, Element) and isinstance(number, int):
-            self._atoms[number] = element
+            try:
+                if self._atoms[number]:
+                    self._atoms[number] = element
+            except KeyError:
+                print('атома под таким номером нет в графе')
         else:
             raise TypeError
 
     def update_bond(self, start_atom: int, end_atom: int, bond_type: int):
         if isinstance(start_atom, int) and isinstance(end_atom, int) and isinstance(bond_type, int):
-            self._bonds[start_atom][end_atom] = bond_type
+            try:
+                if self._atoms[start_atom][end_atom] and self._atoms[end_atom][start_atom]:
+                    self._atoms[start_atom][end_atom] = bond_type
+                    self._atoms[end_atom][start_atom] = bond_type
+            except KeyError:
+                print('атомов с такими связями нет в графе')
         else:
             raise TypeError
 
     def __enter__(self):
         # todo: make backup of internal data
-        self._backup_atoms = self._atoms.copy()     #а здесь переменные писать через селф или без? и если писать с селф то надо их в ините прописывать? переменные через селф можно сохдавать внутри метода, не указав в ините. Отличие таких переменных от обычных в том, что обычные переменные исчезнут сразу же после выполнения метода, а переменные сылф сохраняться.
-        self._backup_bonds = self._bonds.copy()
+        self._backup_atoms = self._atoms.copy()     #переменные через селф можно создавать внутри метода, не указав в ините. Отличие таких переменных от обычных в том, что обычные переменные исчезнут сразу же после выполнения метода, а переменные селф сохраняться.
+        self._backup_bonds = {}
+        for key, value in self._bonds.items():
+            self._backup_bonds[key] = value.copy()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # todo: restore internal data in exception case.
         if exc_val is None:
             del self._backup_atoms
             del self._backup_bonds
-            return self._atoms, self._bonds
         else:
             self._atoms = self._backup_atoms
             self._bonds = self._backup_bonds
+            del self._backup_atoms
+            del self._backup_bonds          #а бэкап-словари лучше чистить или удалять?
 
 
     def __str__(self):
         # todo:  brutto formula
-        c = Counter
+        c = Counter()
         atoms = [x for x in self._atoms.values()]
         for element in atoms:
             c[element] += 1
@@ -91,9 +105,9 @@ class Molecule(Isomorphism, MoleculeABC):
                 pre_formula.append(x + str(c[x]))
             else:
                 pre_formula.append(x)
-        formula = sorted(pre_formula, key=sortByAlphabet)
-        b_formula = ''.join(formula)
-        return b_formula
+        formula = sorted(pre_formula, key=sort_alphabet)
+        self._b_formula = ''.join(formula)
+        return self._b_formula
 
     def __repr__(self):
         return 'Molecule: atoms{}, bonds{}'.format(self._atoms, self._bonds)

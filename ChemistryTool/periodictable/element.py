@@ -14,7 +14,7 @@ class Element:
     def attach(self, mol: 'Molecule', number: int):
         if hasattr(self, '_mol'):
             raise Exception('atom already attached')
-        self._mol = ref(mol)
+        self._mol = ref(mol)                         #нельзя много раз жестко ссылаться на объекты созданные мной. Поэтому надо использовать метод "слабых ссылок". Метод ref позволяет позволяет созать спец объекты которые хранят в себе слабые ссылки. Предотвращат циклизацию ссылок на объекты.
         self._num = number
 
     @property
