@@ -35,12 +35,10 @@ class Molecule(Isomorphism, MoleculeABC):
     def get_bond(self, start_atom: int, end_atom: int) -> int:
         return self._bonds[start_atom][end_atom]
 
-    g2 = ({1: 'C', 2: 'C', 3: 'O', 4: 'C'}, {1: {2: 1}, 2: {1: 1, 3: 1}, 3: {2: 1, 4: 1}, 4: {3: 1}})
-
     def delete_atom(self, number: int):
         if isinstance(number, int):
             for i in self._bonds[number]:
-                del self[i][number]
+                del self._bonds[i][number]
             del self._bonds[number]
             del self._atoms[number]
         else:
@@ -91,7 +89,6 @@ class Molecule(Isomorphism, MoleculeABC):
             self._bonds = self._backup_bonds
             del self._backup_atoms
             del self._backup_bonds          #а бэкап-словари лучше чистить или удалять?
-
 
     def __str__(self):
         # todo:  brutto formula
