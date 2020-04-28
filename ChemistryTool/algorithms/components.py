@@ -6,7 +6,7 @@ class Components(ComponentsABC):
 
     @property
     def connected_components(self):
-        atoms = set(self._atoms)
+        atoms = set(self._atoms)       #почему подсвечивается
         bonds = self._bonds
 
         components = []

@@ -36,38 +36,30 @@ class Molecule(Isomorphism, MoleculeABC):
         return self._bonds[start_atom][end_atom]
 
     def delete_atom(self, number: int):
-        if isinstance(number, int):
-            for i in self._bonds[number]:
-                del self._bonds[i][number]
-            del self._bonds[number]
-            del self._atoms[number]
-        else:
-            raise TypeError
+        for i in self._bonds[number]:
+            del self._bonds[i][number]
+        del self._bonds[number]
+        del self._atoms[number]
 
     def delete_bond(self, start_atom: int, end_atom: int):
-        if isinstance(start_atom, int) and isinstance(end_atom, int):
-            del self._atoms[start_atom][end_atom]
-            del self._atoms[end_atom][start_atom]
-        else:
-            raise TypeError
+        del self._atoms[start_atom][end_atom]
+        del self._atoms[end_atom][start_atom]
 
     def update_atom(self, element: Element, number: int):
-        if isinstance(element, Element) and isinstance(number, int):
-            try:
-                if self._atoms[number]:
-                    self._atoms[number] = element
-            except KeyError:
+        if isinstance(element, Element):
+            if number in self._atoms:
+                self._atoms[number] = element
+            else:
                 print('атома под таким номером нет в графе')
         else:
             raise TypeError
 
     def update_bond(self, start_atom: int, end_atom: int, bond_type: int):
-        if isinstance(start_atom, int) and isinstance(end_atom, int) and isinstance(bond_type, int):
-            try:
-                if self._atoms[start_atom][end_atom] and self._atoms[end_atom][start_atom]:
-                    self._atoms[start_atom][end_atom] = bond_type
-                    self._atoms[end_atom][start_atom] = bond_type
-            except KeyError:
+        if isinstance(bond_type, int):
+            if end_atom in self._atoms[start_atom] and start_atom in self._atoms[end_atom]:
+                self._atoms[start_atom][end_atom] = bond_type
+                self._atoms[end_atom][start_atom] = bond_type
+            else:
                 print('атомов с такими связями нет в графе')
         else:
             raise TypeError
@@ -92,10 +84,7 @@ class Molecule(Isomorphism, MoleculeABC):
 
     def __str__(self):
         # todo:  brutto formula
-        c = Counter()
-        atoms = [x for x in self._atoms.values()]
-        for element in atoms:
-            c[element] += 1
+        c = Counter(x._mol for x in self._atoms.values())
         pre_formula = []
         for x in c:
             if c[x] > 1:
