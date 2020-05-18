@@ -56,9 +56,9 @@ class Molecule(Isomorphism, MoleculeABC):
 
     def update_bond(self, start_atom: int, end_atom: int, bond_type: int):
         if isinstance(bond_type, int):
-            if end_atom in self._atoms[start_atom] and start_atom in self._atoms[end_atom]:
-                self._atoms[start_atom][end_atom] = bond_type
-                self._atoms[end_atom][start_atom] = bond_type
+            if end_atom in self._bonds[start_atom] and start_atom in self._bonds[end_atom]:
+                self._bonds[start_atom][end_atom] = bond_type
+                self._bonds[end_atom][start_atom] = bond_type
             else:
                 print('атомов с такими связями нет в графе')
         else:
